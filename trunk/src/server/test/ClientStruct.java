@@ -9,8 +9,18 @@ import java.net.Socket;
 public class ClientStruct {
 	
 	public enum ClientStatus {
-		AWAITING_PLAY,
-		IN_GAME
+		AWAITING_PLAY("Waiting"),
+		IN_GAME("Playing");
+		
+		private String str;
+		
+		private ClientStatus (String str) {
+			this.str = str;
+		}
+		
+		public String toString () {
+			return str;
+		}
 	}
 	
 	private final Socket socket;
@@ -20,37 +30,42 @@ public class ClientStruct {
 	/**
 	 * @return the status
 	 */
-	public ClientStatus getStatus() {
+	public synchronized ClientStatus getStatus() {
 		return status;
 	}
 
 	/**
 	 * @param status the status to set
 	 */
-	public void setStatus(ClientStatus status) {
+	public synchronized void setStatus(ClientStatus status) {
 		this.status = status;
 	}
 
 	public ClientStruct (Socket socket) {
+		status = ClientStatus.AWAITING_PLAY;
 		this.socket = socket;
 	}
 	
 	/**
 	 * @return the currentGame
 	 */
-	public Game getCurrentGame() {
+	public synchronized Game getCurrentGame() {
 		return currentGame;
 	}
 	/**
 	 * @return the socket
 	 */
-	public Socket getSocket() {
+	public synchronized Socket getSocket () {
 		return socket;
+	}
+	
+	public synchronized String getURL () {
+		return socket.getLocalAddress().toString();
 	}
 	/**
 	 * @param currentGame the currentGame to set
 	 */
-	public void setCurrentGame(Game currentGame) {
+	public synchronized void setCurrentGame(Game currentGame) {
 		this.currentGame = currentGame;
 		status = ClientStatus.AWAITING_PLAY;
 		currentGame = null;
