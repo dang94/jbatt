@@ -15,17 +15,23 @@ public class Server {
 	private Gamemaster gm;
 	
 	public static void main (String [] args) {
+		System.out.println("Server: Starting server.");
 		new Server();
 	}
 	
 	public Server () {
+		System.out.println("Server: Creating window.");
 		window = new ServerWindow();
 		gm = new Gamemaster(this);
-		new ConnectionListener();
+		gm.start();
+		System.out.println("Server: Creating connection listener.");
+		ConnectionListener cl = new ConnectionListener();
+		cl.start();
 		
 	}
 	
 	private void gotConnection (Socket s) {
+		System.out.println("Server: Got connection.");
 		gm.addPlayer(new ClientStruct(s));
 	}
 	
@@ -40,7 +46,7 @@ public class Server {
 		public ConnectionListener () {
 			try {
 				socket = new ServerSocket(1234);
-				run();
+				System.out.println("Server: Preparing to listen.");
 			} catch (IOException e) {
 				System.err.println("Server: Cannot create socket (port busy?).");
 			}

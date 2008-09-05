@@ -23,7 +23,7 @@ public class ServerWindow extends JFrame {
 	}
 	
 	void updatePlayerList (Vector<ClientStruct> list) {
-		lstClients = new JList(structToString(list));
+		lstClients.setListData(structToString(list));
 	}
 	
 	private synchronized Vector<String> structToString (Vector<ClientStruct> structs) {
@@ -32,6 +32,7 @@ public class ServerWindow extends JFrame {
 			ClientStruct s = structs.get(i);
 			strings.add(s.getURL() + '\t' + s.getStatus().toString());
 		}
+		System.out.println("strings " + strings.get(0));
 		return strings;
 	}
 }
