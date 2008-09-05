@@ -12,7 +12,6 @@ public class Gamemaster extends Thread {
 	public Gamemaster (Server owner) {
 		this.owner = owner;
 		players = new Vector<ClientStruct>();
-		run();
 	}
 	
 	@Override
@@ -38,6 +37,7 @@ public class Gamemaster extends Thread {
 	
 	public synchronized void addPlayer (ClientStruct player) {
 		players.add(player);
+		System.out.println("Server: Player added.");
 		owner.updatePlayerList(players);
 	}
 	
