@@ -1,6 +1,6 @@
-package server.test;
+package server.game;
 
-import sun.net.www.content.text.plain;
+import server.ClientStruct;
 
 public class Game {
 	

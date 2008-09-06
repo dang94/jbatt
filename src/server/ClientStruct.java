@@ -1,10 +1,12 @@
-package server.test;
+package server;
 
 import game.layout.GameBoard;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+
+import server.game.Game;
 
 public class ClientStruct {
 	
