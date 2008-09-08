@@ -1,8 +1,8 @@
-package server.test;
+package test.server;
 
 import java.util.Vector;
 
-import server.test.ClientStruct.ClientStatus;
+import test.server.ClientStruct.ClientStatus;
 
 public class Gamemaster extends Thread {
 	

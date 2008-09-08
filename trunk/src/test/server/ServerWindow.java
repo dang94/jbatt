@@ -1,4 +1,4 @@
-package server.test;
+package test.server;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

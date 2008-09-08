@@ -8,12 +8,12 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
-import client.test.Client;
 
 import server.ClientStruct.ClientStatus;
 import server.game.Game;
 import server.game.Game.GameStatus;
 import server.ui.ServerPanel;
+import test.client.Client;
 
 public class Server extends JFrame {
 	

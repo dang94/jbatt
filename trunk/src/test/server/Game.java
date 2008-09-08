@@ -1,4 +1,4 @@
-package server.test;
+package test.server;
 
 import sun.net.www.content.text.plain;
 
