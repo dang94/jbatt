@@ -1,13 +1,13 @@
-package server.test;
+package test.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
-import client.test.Client;
 
-import server.test.ClientStruct.ClientStatus;
+import test.client.Client;
+import test.server.ClientStruct.ClientStatus;
 
 public class Server {
 	

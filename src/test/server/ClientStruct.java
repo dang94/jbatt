@@ -1,4 +1,4 @@
-package server.test;
+package test.server;
 
 import game.layout.GameBoard;
 
