@@ -1,6 +1,5 @@
 package client;
 
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,8 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import client.ui.ConnectPanel;
-
-import server.ui.ServerPanel;
+import client.ui.CreateGameBoardPanel;
 
 public class Client extends JFrame {
 	
@@ -27,12 +25,14 @@ public class Client extends JFrame {
 	private LocalListener listener;
 	
 	public Client () {
-		connect("localhost");
+		listener = new LocalListener();
+		buildWindow();
 	}
 	
-	private void BuildWindow () {
-		setContentPane(contentPane = new ConnectPanel(listener));
-		setPreferredSize(new Dimension(200, 200));
+	private void buildWindow () {
+		//setContentPane(contentPane = new ConnectPanel(listener));
+		setContentPane(contentPane = new CreateGameBoardPanel());
+		setPreferredSize(new Dimension(300, 300));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		pack();
 		setVisible(true);

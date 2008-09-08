@@ -31,7 +31,7 @@ public class ConnectPanel extends JPanel {
 		add(new JLabel("Hostname:"), c);
 		
 		c.gridx = 1;
-		add(txtHost = new JTextField(), c);
+		add(txtHost = new JTextField(20), c);
 		
 		c.gridx = 0;
 		c.gridy = 1;
