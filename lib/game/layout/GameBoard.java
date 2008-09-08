@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class GameBoard implements Serializable{
 	
-	public final int WIDTH = 10;
-	public final int HEIGHT = 10;
+	public static final int WIDTH = 10;
+	public static final int HEIGHT = 10;
 	
 	private char [][] board;
 	
