@@ -1,26 +1,29 @@
 package client.ui;
 
 import game.layout.GameBoard;
+import game.layout.Ship;
+import game.layout.Ship.Orientation;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
-public class CreateGameBoardPanel extends JPanel {
+public class CreateGameBoardPanel extends JPanel implements KeyListener {
 	
-	public static final int GRID_SIZE = 20;
+	private GameBoard board;
+	private int placing;
 	
 	public CreateGameBoardPanel () {
+		addKeyListener(this);
+		setFocusable(true);
+		
+		int [] shipLengths = {2, 3, 3, 4, 5};
+		board = new GameBoard(130, 100, shipLengths);
+		placing = 0;
+		board.getShip(placing).move(0, 0);
 	}
 	
 	@Override
@@ -28,13 +31,44 @@ public class CreateGameBoardPanel extends JPanel {
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
-		g.setColor(Color.BLACK);
-		int width = GameBoard.WIDTH * GRID_SIZE;
-		int height = GameBoard.HEIGHT * GRID_SIZE;
-		for (int x = 0; x <= GameBoard.WIDTH; x++)
-			g.drawLine(x * GRID_SIZE, 0, x * GRID_SIZE, height);
-		for (int y = 0; y <= GameBoard.HEIGHT; y++)
-			g.drawLine(0, y * GRID_SIZE, width, y * GRID_SIZE);
+		int count = 0;
+		for (int i = 0; i < 5; i++)
+			if (i > placing) {
+				Ship.paintGhost(g, true, 10, 10 + count * (board.GRID_SIZE + 2), board.getShip(i).getLength(), Orientation.RIGHT);
+				count++;
+			}
 		
+		board.paint(g, placing);
 	}
+
+	public void keyPressed(KeyEvent e) {
+		System.out.println("KeyPressed");
+		int code = e.getKeyCode();
+		switch (code) {
+			case KeyEvent.VK_UP:
+				System.out.println("up");
+				board.getShip(placing).translate(0, -1);
+				break;
+			case KeyEvent.VK_DOWN:
+				board.getShip(placing).translate(0, 1);
+				break;
+			case KeyEvent.VK_LEFT:
+				board.getShip(placing).translate(-1, 0);
+				break;
+			case KeyEvent.VK_RIGHT:
+				board.getShip(placing).translate(1, 0);
+				break;
+			case KeyEvent.VK_SPACE:
+				board.getShip(placing).rotate();
+				break;
+			case KeyEvent.VK_ENTER:
+				board.getShip(++placing).move(0, 0);
+				break;
+		}
+		repaint();
+	}
+
+	public void keyReleased(KeyEvent e) {}
+
+	public void keyTyped(KeyEvent e) {}
 }
