@@ -1,8 +1,14 @@
 package server.game;
 
+import java.util.Observable;
+import java.util.Observer;
+
+import game.layout.GameBoard;
 import server.ClientStruct;
 
-public class Game {
+public class Game implements Runnable, Observer {
+	
+	/* Enumerators */
 	
 	public enum GameStatus {
 		IN_PROGRESS("In Progress"),
@@ -19,15 +25,30 @@ public class Game {
 		}
 	}
 	
-	private ClientStruct player1;
-	private ClientStruct player2;
+	/* END Enumerators */
+	
+	
+	/* Fields */
+	
+	private ClientStruct player1, player2;
+	private GameBoard board1, board2;
 	private GameStatus status;
+	
+	/* END Fields */
+	
+	
+	/* Constructors */
 	
 	public Game (ClientStruct player1, ClientStruct player2) {
 		this.player1 = player1;
 		this.player2 = player2;
-		(new ConnectionMonitor()).start();
+		(new Thread(new ConnectionMonitor(this))).start();
 	}
+	
+	/* END Constructors */
+	
+	
+	/* Accessors */
 	
 	public GameStatus getStatus () {
 		return status;
@@ -41,25 +62,38 @@ public class Game {
 		return player2;
 	}
 	
-	public void start () {
-		player1.sendGameStart();
-		player2.sendGameStart();
+	public GameBoard getBoard1 () {
+		return board1;
 	}
 	
-	private class ConnectionMonitor extends Thread {
-		
-		@Override
-		public void run() {
-			boolean allConnected = true;
-			while (allConnected) {
-				if (!player1.getSocket().isConnected() ||
-						!player2.getSocket().isConnected()) {
-					System.err.println("Server: A player has been connected.");
-					allConnected = false;
-				}
-			}
-		}
-		
+	public GameBoard getBoard2 () {
+		return board2;
 	}
+	
+	/* END Accessors */
+	
+	
+	/* Runnable Methods */
+	
+	@Override
+	public void run () {
+		//TODO figure out how to make a game into a thread
+	}
+	
+	/* Runnable Methods */
+	
+	
+	/* Observer Methods */
+	
+	public void update(Observable o, Object arg) {
+		if (o instanceof GameStartMonitor) {
+			//game can start now
+			(new Thread(this)).start();
+		} else if (o instanceof ConnectionMonitor) {
+			//a player is disconnected
+		}
+	}	
+	
+	/* Observer Methods */
 	
 }

@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import client.ui.ConnectPanel;
-import client.ui.CreateGameBoardPanel;
+import client.ui.DeployPanel;
 
 public class Client extends JFrame {
 	
@@ -31,11 +31,12 @@ public class Client extends JFrame {
 	
 	private void buildWindow () {
 		//setContentPane(contentPane = new ConnectPanel(listener));
-		setContentPane(contentPane = new CreateGameBoardPanel());
+		setContentPane(contentPane = new DeployPanel());
 		setPreferredSize(new Dimension(300, 300));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		pack();
 		setVisible(true);
+		contentPane.repaint();
 	}
 	
 	private void connect (String url) {
