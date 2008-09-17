@@ -11,12 +11,12 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JPanel;
 
-public class CreateGameBoardPanel extends JPanel implements KeyListener {
+public class DeployPanel extends JPanel implements KeyListener {
 	
 	private GameBoard board;
 	private int placing;
 	
-	public CreateGameBoardPanel () {
+	public DeployPanel () {
 		addKeyListener(this);
 		setFocusable(true);
 		
@@ -28,12 +28,14 @@ public class CreateGameBoardPanel extends JPanel implements KeyListener {
 	
 	@Override
 	public void paint(Graphics g) {
+		g.clearRect(0, 0, getWidth(), getHeight());
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
 		int count = 0;
 		for (int i = 0; i < 5; i++)
 			if (i > placing) {
+				System.out.println("drew index " + i);
 				Ship.paintGhost(g, true, 10, 10 + count * (board.GRID_SIZE + 2), board.getShip(i).getLength(), Orientation.RIGHT);
 				count++;
 			}
@@ -42,11 +44,9 @@ public class CreateGameBoardPanel extends JPanel implements KeyListener {
 	}
 
 	public void keyPressed(KeyEvent e) {
-		System.out.println("KeyPressed");
 		int code = e.getKeyCode();
 		switch (code) {
 			case KeyEvent.VK_UP:
-				System.out.println("up");
 				board.getShip(placing).translate(0, -1);
 				break;
 			case KeyEvent.VK_DOWN:
@@ -62,7 +62,8 @@ public class CreateGameBoardPanel extends JPanel implements KeyListener {
 				board.getShip(placing).rotate();
 				break;
 			case KeyEvent.VK_ENTER:
-				board.getShip(++placing).move(0, 0);
+				if (!board.overlaps(placing))
+					board.getShip(++placing).move(0, 0);
 				break;
 		}
 		repaint();
