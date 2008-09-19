@@ -8,11 +8,12 @@ import java.awt.event.KeyEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class ConnectPanel extends JPanel {
+public class ConnectPanel extends JLayeredPane {
 	
 	private ActionListener listener;
 	

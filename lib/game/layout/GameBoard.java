@@ -7,9 +7,22 @@ import game.net.outcome.Outcome;
 import game.net.outcome.Sunk;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.Vector;
+
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 
 public class GameBoard implements Serializable {
 	
@@ -18,16 +31,30 @@ public class GameBoard implements Serializable {
 	public static final int WIDTH = 10;
 	public static final int HEIGHT = 10;
 	
+	public static final Color HIT_COLOUR = Color.RED;
+	public static final Color MISS_COLOUR = Color.WHITE;
+	
 	public final int LEFT_OFFSET;
 	public final int TOP_OFFSET;
 	
-	private Vector<Ship> ships;
-	private char [][] hitBoard;
+	public static enum ShotBoard {
+		HIT,
+		MISS,
+		NO_SHOT
+	}
 	
-	public GameBoard (int left, int top, int [] shipLengths) {
+	private Vector<Ship> ships;
+	private ShotBoard [][] hitBoard;
+	private final JLayeredPane buttonPanel;
+	
+	public GameBoard (int left, int top, int [] shipLengths, JLayeredPane buttonPanel) {
+		this.buttonPanel = buttonPanel;
 		LEFT_OFFSET = left;
 		TOP_OFFSET = top;
-		hitBoard = new char[WIDTH][HEIGHT];
+		hitBoard = new ShotBoard[WIDTH][HEIGHT];
+		for (int y = 0; y < HEIGHT; y++)
+			for (int x = 0; x < WIDTH; x++)
+				hitBoard[x][y] = ShotBoard.NO_SHOT;
 		ships = new Vector<Ship>();
 		for (int i = 0; i < shipLengths.length; i++)
 			ships.add(new Ship(shipLengths[i], this));
@@ -39,11 +66,15 @@ public class GameBoard implements Serializable {
 				for (int n = 0; n < ships.get(i).getLength(); n++)
 					if (ships.get(i).getPoint(n).x == x &&
 							ships.get(i).getPoint(n).y == y) {
+						hitBoard[x][y] = ShotBoard.HIT;
+						System.out.println("hitboard " + hitBoard[x][y]);
 						if (ships.get(i).isSunk(n))
 							return new Sunk(x, y, ships.get(i));
 						else
 							return new Hit(x, y);
 					}
+		hitBoard[x][y] = ShotBoard.MISS;
+		System.out.println("hitboard " + hitBoard[x][y]);
 		return new Miss(x, y);
 	}
 	
@@ -72,6 +103,21 @@ public class GameBoard implements Serializable {
 					return true;
 		}
 		return false;
+	}
+	
+	public void placeButtons (JLayeredPane panel, MouseListener listener) {
+		int count = 1;
+		for (int y = 0; y < HEIGHT; y++)
+			for (int x = 0; x < WIDTH; x++) {
+				AbstractButton button = new BoardButton(x, y);
+				//button.setActionCommand(x + "," + y);
+				button.addMouseListener(listener);
+				panel.add(button, new Integer(count++));
+				button.setBounds(x * GRID_SIZE + LEFT_OFFSET,
+						y * GRID_SIZE + TOP_OFFSET,
+						GRID_SIZE, GRID_SIZE);
+				button.repaint();
+				}
 	}
 	
 	public Ship getShip (int index) {
@@ -103,10 +149,80 @@ public class GameBoard implements Serializable {
 					y * GRID_SIZE + TOP_OFFSET);
 		
 		for (int i = 0; i < 5; i++)
-			if (i < placing)
-				getShip(i).paint(g, true);
+			if (getShip(i).isPlaced()) {
+				if (i < placing)
+					getShip(i).paint(g, true);
+				else
+					getShip(i).paint(g, false);
+			}
+		
+		for (int y = 0; y < HEIGHT; y++)
+			for (int x = 0; x < WIDTH; x++) {
+				if (hitBoard[x][y] == ShotBoard.HIT)
+					g.setColor(HIT_COLOUR);
+				else if (hitBoard[x][y] == ShotBoard.MISS)
+					g.setColor(MISS_COLOUR);
+				switch (hitBoard[x][y]) {
+					case HIT: System.out.println("paint hb " + x + ", " + y + " hit"); break;
+					case MISS: System.out.println("paint hb " + x + ", " + y + " miss"); break;
+					case NO_SHOT: System.out.println("paint hb " + x + ", " + y + " none");
+				}
+				
+				if (hitBoard[x][y] != ShotBoard.NO_SHOT)
+					g.fillArc(width + LEFT_OFFSET + 5, height + LEFT_OFFSET + 5, GRID_SIZE - 10, GRID_SIZE - 10, 0, 360);
+			}
+	}
+	
+	public class BoardButton extends AbstractButton {
+		
+		private int x;
+		private int y;
+		
+		public BoardButton (int x, int y) {
+			this.x = x;
+			this.y = y;
+			setFocusable(false);
+		}
+		
+		public int getX () {
+			return x;
+		}
+		
+		public int getY () {
+			return y;
+		}
+		
+	}
+	
+	public class BoardClickAction implements Action {
+		
+		private Point coordinates;
+		
+		public BoardClickAction (int x, int y) {
+			coordinates = new Point(x, y);
+		}
+		
+		public void addPropertyChangeListener (PropertyChangeListener listener) {}
+
+		public Object getValue (String key) {
+			if (key.equals("coordinates"))
+				return coordinates;
 			else
-				getShip(i).paint(g, false);
+				return null;
+		}
+
+		public boolean isEnabled () {
+			return true;
+		}
+
+		public void putValue (String key, Object value) {}
+
+		public void removePropertyChangeListener (PropertyChangeListener listener) {}
+
+		public void setEnabled (boolean b) {}
+
+		public void actionPerformed (ActionEvent e) {}
+		
 	}
 	
 }

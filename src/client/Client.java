@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -21,7 +22,7 @@ public class Client extends JFrame {
 	}
 	
 	private Socket socket;
-	private JPanel contentPane;
+	private JLayeredPane contentPane;
 	private LocalListener listener;
 	
 	public Client () {
@@ -32,7 +33,7 @@ public class Client extends JFrame {
 	private void buildWindow () {
 		//setContentPane(contentPane = new ConnectPanel(listener));
 		setContentPane(contentPane = new DeployPanel());
-		setPreferredSize(new Dimension(300, 300));
+		setPreferredSize(new Dimension(400, 400));
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		pack();
 		setVisible(true);
