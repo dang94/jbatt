@@ -14,4 +14,14 @@ public class Sunk extends Outcome {
 	public Ship getShip () {
 		return ship;
 	}
+	
+	@Override
+	public String getOppMessage() {
+		return "You sunk a " + ship.getName() + "!";
+	}
+	
+	@Override
+	public String getSelfMessage() {
+		return "Your " + ship.getName() + " was sunk!";
+	}
 }

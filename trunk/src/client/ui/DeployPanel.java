@@ -28,7 +28,8 @@ public class DeployPanel extends JLayeredPane {
 		setFocusable(true);
 		
 		int [] shipLengths = {2, 3, 3, 4, 5};
-		board = new GameBoard(130, 100, shipLengths, this);
+		String [] shipNames = {"destroyer", "battleship", "battleship", "submarine", "carrier"};
+		board = new GameBoard(130, 100, shipLengths, shipNames, this);
 		board.placeButtons(this, listener);
 		placing = 0;
 		board.getShip(placing).move(0, 0);

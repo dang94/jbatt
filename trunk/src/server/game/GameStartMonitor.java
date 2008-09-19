@@ -7,14 +7,11 @@ import game.layout.GameBoard;
 
 public class GameStartMonitor extends Observable implements Runnable {
 	
-	private ClientStruct player1, player2;
 	private GameBoard board1, board2;
+	private Game game;
 	
 	public GameStartMonitor (Game game) {
-		player1 = game.getPlayer1();
-		player2 = game.getPlayer2();
-		board1 = game.getBoard1();
-		board2 = game.getBoard2();
+		this.game = game;
 	}
 	
 	@Override
@@ -22,19 +19,21 @@ public class GameStartMonitor extends Observable implements Runnable {
 		(new Thread () {
 			@Override
 			public void run() {
-				board1 = player1.sendGameStart();
+				board1 = game.getPlayer1().sendGameStart();
 			}
 		}).start();
 		
 		(new Thread () {
 			@Override
 			public void run() {
-				board2 = player2.sendGameStart();
+				board2 = game.getPlayer2().sendGameStart();
 			}
 		}).start();
 
 		while (board1 == null || board2 == null);
 		
+		game.setBoard1(board1);
+		game.setBoard2(board2);
 		notifyObservers();
 	}
 }
