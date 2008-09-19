@@ -92,6 +92,7 @@ public class Ship implements Serializable {
 	}
 	
 	private final int length;
+	private final String name;
 	private int x, y;
 	private Orientation direction;
 	
@@ -102,8 +103,9 @@ public class Ship implements Serializable {
 	private boolean sunk;
 	private boolean [] hits;
 	
-	public Ship (int length, GameBoard owner) {
+	public Ship (int length, String name, GameBoard owner) {
 		this.length = length;
+		this.name = name;
 		this.owner = owner;
 		
 		x = y = -1;
@@ -142,6 +144,10 @@ public class Ship implements Serializable {
 	
 	public int getLength () {
 		return length;
+	}
+	
+	public String getName () {
+		return name;
 	}
 	
 	public boolean isSunk () {

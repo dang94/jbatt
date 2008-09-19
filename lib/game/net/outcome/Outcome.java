@@ -17,5 +17,9 @@ public abstract class Outcome {
 	public int getY () {
 		return y;
 	}
-
+	
+	public abstract String getOppMessage ();
+	
+	public abstract String getSelfMessage ();
+	
 }

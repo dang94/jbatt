@@ -47,7 +47,7 @@ public class GameBoard implements Serializable {
 	private ShotBoard [][] hitBoard;
 	private final JLayeredPane buttonPanel;
 	
-	public GameBoard (int left, int top, int [] shipLengths, JLayeredPane buttonPanel) {
+	public GameBoard (int left, int top, int [] shipLengths, String [] shipNames, JLayeredPane buttonPanel) {
 		this.buttonPanel = buttonPanel;
 		LEFT_OFFSET = left;
 		TOP_OFFSET = top;
@@ -57,7 +57,21 @@ public class GameBoard implements Serializable {
 				hitBoard[x][y] = ShotBoard.NO_SHOT;
 		ships = new Vector<Ship>();
 		for (int i = 0; i < shipLengths.length; i++)
-			ships.add(new Ship(shipLengths[i], this));
+			ships.add(new Ship(shipLengths[i], shipNames[i], this));
+	}
+	
+	public boolean isAlive () {
+		for (int i = 0; i < ships.size(); i++)
+			if (!ships.get(i).isSunk())
+				return true;
+		return false;
+	}
+	
+	public void update (Outcome o) {
+		if (o instanceof Hit || o instanceof Sunk)
+			hitBoard[o.getX()][o.getY()] = ShotBoard.HIT;
+		else if (o instanceof Miss)
+			hitBoard[o.getX()][o.getY()] = ShotBoard.MISS;
 	}
 	
 	public Outcome fire (int x, int y) {

@@ -9,9 +9,10 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
-public class GamePanel extends JPanel implements KeyListener {
+public class GamePanel extends JLayeredPane implements KeyListener {
 
 	private GameBoard myBoard, opponentBoard;
 	
@@ -19,6 +20,14 @@ public class GamePanel extends JPanel implements KeyListener {
 		addKeyListener(this);
 		setFocusable(true);
 		
+	}
+	
+	public GameBoard getMyBoard () {
+		return myBoard;
+	}
+	
+	public GameBoard getOpponentBoard () {
+		return opponentBoard;
 	}
 	
 	@Override
@@ -29,7 +38,7 @@ public class GamePanel extends JPanel implements KeyListener {
 		
 		int count = 0;
 		
-		myBoard.paint(g);
+		//myBoard.paint(g);
 	}
 
 	public void keyPressed(KeyEvent e) {
