@@ -2,8 +2,10 @@ package game.layout;
 
 import graphics.AlphaFilter;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -13,49 +15,80 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageConsumer;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+
 import sun.awt.image.ToolkitImage;
 
 public class Ship implements Serializable {
 	
-	private static Vector<Image> horizImages;
-	private static Vector<Image> horizImagesDim;
-	private static Vector<Image> vertImages;
-	private static Vector<Image> vertImagesDim;
+	private static Vector<BufferedImage> [] images;
+	private static Vector<BufferedImage> [] imagesDim;
 	
 	static {
-		horizImages = new Vector<Image>();
-		horizImagesDim = new Vector<Image>();
-		vertImages = new Vector<Image>();
-		vertImagesDim = new Vector<Image>();
+		images = new Vector[2];
+		images[Orientation.RIGHT.INDEX] = new Vector<BufferedImage>();
+		images[Orientation.DOWN.INDEX] = new Vector<BufferedImage>();
+		imagesDim = new Vector[2];
+		imagesDim[Orientation.RIGHT.INDEX] = new Vector<BufferedImage>();
+		imagesDim[Orientation.DOWN.INDEX] = new Vector<BufferedImage>();
+		
 		
 		//Preload images
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		
-		horizImages.add(tk.getImage("res/2h.png"));
-		horizImages.add(tk.getImage("res/3h.png"));
-		horizImages.add(tk.getImage("res/4h.png"));
-		horizImages.add(tk.getImage("res/5h.png"));
-		vertImages.add(tk.getImage("res/2v.png"));
-		vertImages.add(tk.getImage("res/3v.png"));
-		vertImages.add(tk.getImage("res/4v.png"));
-		vertImages.add(tk.getImage("res/5v.png"));
+		for (int i = 2; i <= 5; i++) {
+			try {
+				images[Orientation.RIGHT.INDEX].add(ImageIO.read(new File("res/" + String.valueOf(i) + Orientation.RIGHT.SYMBOL + ".png")));
+				images[Orientation.DOWN.INDEX].add(ImageIO.read(new File("res/" + String.valueOf(i) + Orientation.DOWN.SYMBOL + ".png")));
+			} catch (IOException e) {}
+		}
+		
+		/*for (int i = 2; i <= 5; i++) {
+			horizImages.add(new ImageIcon("res/" + String.valueOf(i) + "h.png"));
+			vertImages.add(tk.createImage("res/" + String.valueOf(i) + "v.png"));
+		}*/
 		
 		//Create and preload dimmed images
-		AlphaFilter filter = new AlphaFilter(135);
+		
+		for (int i = 0; i < 4; i++)
+			for (int n = 0; n <= 1; n++) {
+				BufferedImage src = images[n].get(i);
+				BufferedImage dest = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		        Graphics2D g2 = dest.createGraphics();
+		        AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+		        g2.setComposite(ac);
+		        g2.drawImage(src, null, 0, 0);
+		        g2.dispose();
+		        imagesDim[n].add(dest);
+			}
+		
+		/*AlphaFilter filter = new AlphaFilter(135);
 		for (int i = 0; i < 4; i++) {
 			horizImagesDim.add(tk.createImage(new FilteredImageSource(horizImages.get(i).getSource(), filter)));
 			vertImagesDim.add(tk.createImage(new FilteredImageSource(vertImages.get(i).getSource(), filter)));
-		}
+		}*/
 	}
 	
-	public enum Orientation implements Serializable {
-		RIGHT,
-		DOWN
+	public static enum Orientation implements Serializable {
+		RIGHT(0, 'h'),
+		DOWN(1, 'v');
+		
+		public final int INDEX;
+		public final char SYMBOL;
+		
+		private Orientation (int index, char symbol) {
+			INDEX = index;
+			SYMBOL = symbol;
+		}
+		
 	}
 	
 	private final int length;
@@ -208,29 +241,18 @@ public class Ship implements Serializable {
 	}
 	
 	public void paint (Graphics g, boolean dimmed) {
+		//TODO try cloning images to fix drawing problems
 		System.out.println("painting ship of length: " + length + ", dimmed: " + dimmed);
 		if (!dimmed) {
-			if (direction == Orientation.RIGHT)
-				g.drawImage(horizImages.get(length - 2),
-						x * GameBoard.GRID_SIZE + owner.LEFT_OFFSET,
-						y * GameBoard.GRID_SIZE + owner.TOP_OFFSET,
-						null);
-			else //Orientation.DOWN)
-				g.drawImage(vertImages.get(length - 2),
-						x * GameBoard.GRID_SIZE + owner.LEFT_OFFSET,
-						y * GameBoard.GRID_SIZE + owner.TOP_OFFSET,
-						null);
+			g.drawImage(images[direction.INDEX].get(length - 2),
+					x * GameBoard.GRID_SIZE + owner.LEFT_OFFSET,
+					y * GameBoard.GRID_SIZE + owner.TOP_OFFSET,
+				null);
 		} else {
-			if (direction == Orientation.RIGHT)
-				g.drawImage(horizImagesDim.get(length - 2),
-						x * GameBoard.GRID_SIZE + owner.LEFT_OFFSET,
-						y * GameBoard.GRID_SIZE + owner.TOP_OFFSET,
-						null);
-			else //Orientation.DOWN)
-				g.drawImage(vertImagesDim.get(length - 2),
-						x * GameBoard.GRID_SIZE + owner.LEFT_OFFSET,
-						y * GameBoard.GRID_SIZE + owner.TOP_OFFSET,
-						null);
+			g.drawImage(imagesDim[direction.INDEX].get(length - 2),
+					x * GameBoard.GRID_SIZE + owner.LEFT_OFFSET,
+					y * GameBoard.GRID_SIZE + owner.TOP_OFFSET,
+					null);
 		}
 		
 		/*if (direction == Orientation.RIGHT) {
@@ -247,21 +269,10 @@ public class Ship implements Serializable {
 	}
 	
 	public static void paintGhost (Graphics g, boolean dimmed, int left, int top, int length, Orientation direction) {
-		if (!dimmed) {
-			if (direction == Orientation.RIGHT)
-				g.drawImage(horizImages.get(length - 2),
-						left, top, null);
-			else //Orientation.DOWN)
-				g.drawImage(vertImages.get(length - 2),
-						left, top, null);
-		} else {
-			if (direction == Orientation.RIGHT)
-				g.drawImage(horizImagesDim.get(length - 2),
-						left, top, null);
-			else //Orientation.DOWN)
-				g.drawImage(vertImagesDim.get(length - 2),
-						left, top, null);
-		}
+		if (!dimmed)
+			g.drawImage(images[direction.INDEX].get(length - 2), left, top, null);
+		else
+			g.drawImage(imagesDim[direction.INDEX].get(length - 2), left, top, null);
 		
 		/*if (direction == Orientation.RIGHT) {
 			for (int i = 0; i < length; i++)
