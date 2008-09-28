@@ -1,3 +1,8 @@
+/**
+ * @author Alex Peterson
+ * @version 2008SE19
+ */
+
 package client;
 
 import java.io.IOException;
@@ -6,29 +11,55 @@ import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
 
+/**
+ * An Observable thread which monitors the
+ * network connection of a socket.
+ */
 public class NetworkMonitor extends Observable implements Runnable {
 	
-	private Observer observer;
+	/* Fields */
+	
 	private Socket socket;
 	
-	public NetworkMonitor (Observer observer, Socket socket) {
+	/* END Fields */
+	
+	
+	/* Constructors */
+	
+	/**
+	 * Constructs a new NetworkMonitor with a socket to
+	 * monitor and an observer to notify.
+	 * @param socket the socket to monitor for an active connection
+	 * @param observer the observer to notify if the socket has lost its connection
+	 */
+	public NetworkMonitor (Socket socket, Observer observer) {
 		this.socket = socket;
 		addObserver(observer);
 	}
 	
+	/* END Constructors */
+	
+	
+	/* Runnable Methods */
+	
+	/**
+	 * Runs the thread.
+	 */
+	@Override
 	public void run() {
 		try {
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+			final ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			while (true) {
 				//blocking statement
-				Object received = ois.readObject();
+				final Object received = ois.readObject();
 				notifyObservers(received);
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/* END Runnable Methods */
 }

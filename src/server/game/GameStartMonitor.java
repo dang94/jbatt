@@ -34,6 +34,10 @@ public class GameStartMonitor extends Observable implements Runnable {
 		
 		game.setBoard1(board1);
 		game.setBoard2(board2);
+		System.out.println("IT WORKS!!!");
+		System.out.println(board1);
+		System.out.println(board2);
+		setChanged();
 		notifyObservers();
 	}
 }

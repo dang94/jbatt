@@ -4,6 +4,8 @@ import java.io.ObjectOutputStream;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.sun.corba.se.impl.corba.ContextListImpl;
+
 import game.layout.GameBoard;
 import game.net.action.FiredShot;
 import game.net.outcome.Outcome;
@@ -36,6 +38,7 @@ public class Game implements Runnable, Observer {
 	private final ClientStruct [] players;
 	private GameBoard [] boards;
 	private GameStatus status;
+	private boolean done;
 	
 	/* END Fields */
 	
@@ -46,11 +49,9 @@ public class Game implements Runnable, Observer {
 		players = new  ClientStruct[2];
 		players[0] = player1;
 		players[1] = player2;
-		(new Thread(new ConnectionMonitor(this))).start();
 	}
 	
 	/* END Constructors */
-	
 	
 	/* Accessors */
 	
@@ -94,7 +95,6 @@ public class Game implements Runnable, Observer {
 	
 	@Override
 	public void run () {
-		//TODO figure out how to make a game into a thread
 		boolean done = false;
 		ClientStruct winner;
 		int going = 0, waiting = 1;
@@ -124,14 +124,22 @@ public class Game implements Runnable, Observer {
 	/* Runnable Methods */
 	
 	
+	public void stopGame (String reason) {
+		System.out.println("Server: Game stopped: \"" + reason + "\"");
+		if (players[0].isConnected())
+			players[0].sendGameStop(reason);
+		if (players[1].isConnected())
+			players[1].sendGameStop(reason);
+		status = GameStatus.ENDED;
+	}
+	
+	
 	/* Observer Methods */
 	
 	public void update(Observable o, Object arg) {
 		if (o instanceof GameStartMonitor) {
 			//game can start now
 			(new Thread(this)).start();
-		} else if (o instanceof ConnectionMonitor) {
-			//a player is disconnected
 		}
 	}	
 	

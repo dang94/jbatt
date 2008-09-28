@@ -1,8 +1,6 @@
 package server;
 
 import java.awt.Dimension;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
@@ -10,14 +8,16 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
+import server.ClientStruct.ClientStatus;
+import server.game.PulseMonitor;
 import server.ui.ServerPanel;
 
 
-public class Server extends JFrame implements Observer {
+public class Server extends JFrame {
 	
+	private LocalListener listener;
 	private ServerPanel contentPane;
 	private GameMaster gm;
-	private Vector<ClientStruct> players;
 	
 	public static void main (String [] args) {
 		System.out.println("Server: Starting server.");
@@ -26,14 +26,14 @@ public class Server extends JFrame implements Observer {
 	
 	public Server () {
 		System.out.println("Server: Creating window.");
+		listener = new LocalListener();
 		buildWindow();
-		players = new Vector<ClientStruct>();
-		gm = new GameMaster(players);
-		gm.addObserver(this);
+		gm = new GameMaster(this);
+		gm.addObserver(listener);
 		(new Thread(gm)).start();
 		System.out.println("Server: Creating connection listener.");
 		ConnectionListener cl = new ConnectionListener();
-		cl.addObserver(this);
+		cl.addObserver(listener);
 		(new Thread(cl)).start();
 		
 	}
@@ -46,13 +46,19 @@ public class Server extends JFrame implements Observer {
 		setVisible(true);
 	}
 	
-	public void update(Observable o, Object arg) {
-		if (arg instanceof Socket) {
-			System.out.println("Server: Got connection.");
-			gm.addPlayer(new ClientStruct((Socket)arg));
-		} else if (o instanceof GameMaster) {
-			contentPane.refreshPlayers((Vector<ClientStruct>)players.clone());
+	private class LocalListener implements Observer {
+		
+		public void update(Observable o, Object arg) {
+			System.out.println("update called");
+			if (arg instanceof ClientStruct) {
+				System.out.println("Server: Got connection.");
+				ClientStruct cs = (ClientStruct)arg;
+				gm.addPlayer(cs);
+				contentPane.refreshPlayers(gm.getPlayerStrings());
+			} else if (o == gm) {
+				System.out.println("will refresh");
+				contentPane.refreshPlayers(gm.getPlayerStrings());
+			}
 		}
 	}
-	
 }

@@ -1,23 +1,8 @@
 package game.layout;
 
-import graphics.AlphaFilter;
-
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.awt.image.ConvolveOp;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.ImageConsumer;
-import java.awt.image.ImageFilter;
-import java.awt.image.ImageProducer;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
@@ -70,11 +55,6 @@ public class Ship implements Serializable {
 		        imagesDim[n].add(dest);
 			}
 		
-		/*AlphaFilter filter = new AlphaFilter(135);
-		for (int i = 0; i < 4; i++) {
-			horizImagesDim.add(tk.createImage(new FilteredImageSource(horizImages.get(i).getSource(), filter)));
-			vertImagesDim.add(tk.createImage(new FilteredImageSource(vertImages.get(i).getSource(), filter)));
-		}*/
 	}
 	
 	public static enum Orientation implements Serializable {
@@ -247,8 +227,6 @@ public class Ship implements Serializable {
 	}
 	
 	public void paint (Graphics g, boolean dimmed) {
-		//TODO try cloning images to fix drawing problems
-		System.out.println("painting ship of length: " + length + ", dimmed: " + dimmed);
 		if (!dimmed) {
 			g.drawImage(images[direction.INDEX].get(length - 2),
 					x * GameBoard.GRID_SIZE + owner.LEFT_OFFSET,

@@ -18,14 +18,8 @@ public class ServerPanel extends JPanel {
 		add(lstClients = new JList(), BorderLayout.CENTER);
 	}
 	
-	public void refreshPlayers (Vector<ClientStruct> list) {
-		Vector<String> strings = new Vector<String>();
-		for (int i = 0; i < list.size(); i++) {
-			ClientStruct s = list.get(i);
-			strings.add(s.getURL() + '\t' + s.getStatus().toString());
-		}
-		System.out.println("strings " + strings.get(0));
-		lstClients.setListData(strings);
+	public void refreshPlayers (Vector<String> list) {
+		lstClients.setListData(list);
 	}
 	
 }

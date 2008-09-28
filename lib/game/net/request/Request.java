@@ -8,7 +8,8 @@ public class Request implements Serializable {
 	
 	public static enum RequestType {
 		MOVE_REQUEST,
-		CONFIRMATION_REQUEST
+		CONFIRMATION_REQUEST,
+		GAMEBOARD_REQUEST
 	}
 	
 	private final RequestType type;

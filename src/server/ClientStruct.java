@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import com.sun.org.apache.regexp.internal.recompile;
 
@@ -21,7 +22,8 @@ public class ClientStruct {
 	public enum ClientStatus {
 		AWAITING_PLAY("Waiting"),
 		IN_GAME("Playing"),
-		LEAVING_GAME("Disconnecting");
+		LEAVING_GAME("Confirmation"),
+		AWAITING_CLEANUP("Disconnecting");
 		
 		private String str;
 		
@@ -35,6 +37,7 @@ public class ClientStruct {
 	}
 	
 	private final Socket socket;
+	private final Socket pulse;
 	private Game currentGame;
 	private ClientStatus status;
 	
@@ -52,9 +55,10 @@ public class ClientStruct {
 		this.status = status;
 	}
 
-	public ClientStruct (Socket socket) {
+	public ClientStruct (Socket socket, Socket pulse) {
 		status = ClientStatus.AWAITING_PLAY;
 		this.socket = socket;
+		this.pulse = pulse;
 	}
 	
 	/**
@@ -70,6 +74,10 @@ public class ClientStruct {
 		return socket;
 	}
 	
+	public synchronized Socket getPulse () {
+		return pulse;
+	}
+	
 	public synchronized String getURL () {
 		return socket.getLocalAddress().toString();
 	}
@@ -83,6 +91,14 @@ public class ClientStruct {
 	}
 	
 	public GameBoard sendGameStart () {
+		
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			oos.writeObject(new Request(RequestType.GAMEBOARD_REQUEST));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		Object recieved;
 		try {
@@ -165,6 +181,32 @@ public class ClientStruct {
 		} catch (ClassNotFoundException e) {
 			System.err.println("Server: ClassNotFoundException.");
 			return false;
+		}
+	}
+	
+	public boolean isConnected () {
+		//this always returns true
+		//return socket.
+		return socket.isConnected();
+	}
+	
+	public void sendGameStop (String message) {
+		status = ClientStatus.LEAVING_GAME;
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			oos.writeObject(new Request(RequestType.CONFIRMATION_REQUEST));
+			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+			Object result = ois.readObject();
+			//FIX I don't know if this will work 
+			if (result != null)
+				status = ClientStatus.AWAITING_PLAY;
+			else
+				status = ClientStatus.AWAITING_CLEANUP;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
