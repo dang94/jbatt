@@ -40,6 +40,8 @@ public class ClientStruct {
 	private final Socket pulse;
 	private Game currentGame;
 	private ClientStatus status;
+	private boolean connected;
+	private final String username;
 	
 	/**
 	 * @return the status
@@ -59,6 +61,16 @@ public class ClientStruct {
 		status = ClientStatus.AWAITING_PLAY;
 		this.socket = socket;
 		this.pulse = pulse;
+		connected = true;
+		String tempname;
+		try {
+			ObjectInputStream ois = new ObjectInputStream(this.socket.getInputStream());
+			tempname = (String)ois.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+			tempname = "Unknown";
+		}
+		username = tempname;
 	}
 	
 	/**
@@ -81,16 +93,27 @@ public class ClientStruct {
 	public synchronized String getURL () {
 		return socket.getLocalAddress().toString();
 	}
+	
+	public synchronized void disconnected () {
+		connected = false;
+	}
+	
 	/**
 	 * @param currentGame the currentGame to set
 	 */
-	public synchronized void setCurrentGame(Game currentGame) {
+	public synchronized void setCurrentGame (Game currentGame) {
+		setCurrentGame(currentGame, ClientStatus.AWAITING_PLAY);
+	}
+	
+	public synchronized void setCurrentGame (Game currentGame, ClientStatus status) {
 		this.currentGame = currentGame;
-		status = ClientStatus.AWAITING_PLAY;
+		this.status = status;
+		//TODO why did I do this?
 		currentGame = null;
 	}
 	
 	public GameBoard sendGameStart () {
+		status = ClientStatus.IN_GAME;
 		
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
@@ -185,28 +208,29 @@ public class ClientStruct {
 	}
 	
 	public boolean isConnected () {
-		//this always returns true
-		//return socket.
-		return socket.isConnected();
+		return connected;
 	}
 	
 	public void sendGameStop (String message) {
-		status = ClientStatus.LEAVING_GAME;
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			oos.writeObject(new Request(RequestType.CONFIRMATION_REQUEST));
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			Object result = ois.readObject();
-			//FIX I don't know if this will work 
-			if (result != null)
-				status = ClientStatus.AWAITING_PLAY;
-			else
-				status = ClientStatus.AWAITING_CLEANUP;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (!isConnected()) {
+			status = ClientStatus.AWAITING_CLEANUP;
+		} else {
+			try {
+				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+				oos.writeObject(new Request(RequestType.CONFIRMATION_REQUEST));
+				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+				Object result = ois.readObject();
+				//FIX I don't know if this will work 
+				if (result != null)
+					status = ClientStatus.AWAITING_PLAY;
+				else
+					status = ClientStatus.AWAITING_CLEANUP;
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

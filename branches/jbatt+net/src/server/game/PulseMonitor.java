@@ -5,6 +5,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Observable;
 import java.util.Vector;
 
@@ -30,15 +31,15 @@ public class PulseMonitor extends Observable implements Runnable {
 				try {
 					player.getPulse().setSoTimeout(200);
 					System.out.println("got pulse " + in.readByte());
-				} catch (IOException e) {
-					e.printStackTrace();
 				} catch (Exception e) {
 					if (e instanceof EOFException ||
-							e instanceof SocketException) {
+							e instanceof SocketException ||
+							e instanceof SocketTimeoutException) {
 						done = true;
 						setChanged();
 						notifyObservers(player);
-					}
+					} else
+						e.printStackTrace();
 				}
 			}
 		} catch (IOException e1) {

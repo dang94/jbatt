@@ -22,7 +22,7 @@ public class GameMaster extends Observable implements Runnable, Observer {
 	private Server server;
 	private Vector<Game> games;
 	private Vector<ClientStruct> players;
-	private PulseMonitor cm;
+	private PulseMonitor pm;
 	
 	/* END Fields */
 	
@@ -46,9 +46,9 @@ public class GameMaster extends Observable implements Runnable, Observer {
 	
 	public synchronized void addPlayer (ClientStruct player) {
 		players.add(player);
-		cm = new PulseMonitor(player);
-		cm.addObserver(this);
-		(new Thread(cm)).start();
+		pm = new PulseMonitor(player);
+		pm.addObserver(this);
+		(new Thread(pm)).start();
 		System.out.println("Server: Player added.");
 		notifyObservers();
 	}
@@ -71,12 +71,10 @@ public class GameMaster extends Observable implements Runnable, Observer {
 	private void startGame (ClientStruct player1, ClientStruct player2) {
 		System.out.println("start game, notify observers");
 		//TODO check that players are still connected first!!!
-		player1.setStatus(ClientStatus.IN_GAME);
-		player2.setStatus(ClientStatus.IN_GAME);
+		setChanged();
 		notifyObservers();
 		Game g = new Game(player1, player2);
 		games.add(g);
-		(new Thread(g)).start();
 	}
 	
 	/* END Local Methods */
@@ -113,13 +111,13 @@ public class GameMaster extends Observable implements Runnable, Observer {
 
 	public void update (Observable o, Object arg) {
 		System.out.println("gm got update");
-		if (o == cm) {
+		if (o == pm) {
 			System.out.println("gamemaster will cleanup player");
 			ClientStruct player = (ClientStruct)arg;
 			if (player.getStatus() == ClientStatus.IN_GAME)
-				player.getCurrentGame().stopGame("A player was disconnected");
-			players.removeElement(player);
-			//ClientStatus.AWAITING_CLEANUP);
+					player.getCurrentGame().stopGame("A player was disconnected");
+			if (player.getStatus() == ClientStatus.AWAITING_CLEANUP)
+				players.removeElement(player);
 			((ServerPanel)server.getContentPane()).refreshPlayers(getPlayerStrings());
 		}
 		
