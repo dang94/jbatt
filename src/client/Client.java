@@ -88,21 +88,7 @@ public class Client {
 		window.setVisible(true);
 		window.repaint();
 	}
-	
-	private void buildWindow () {
-
-		//TODO this will be removed; for testing ONLY
-		/*{
-			int [] shipLengths = {2, 3, 3, 4, 5};
-			String [] shipNames = {"destroyer", "battleship", "battleship", "submarine", "carrier"};
-			GameBoard board = new GameBoard(130, 100, shipLengths, shipNames);
-			//board.placeButtons(this, listener);
-			setContentPane(contentPane = new GamePanel(board));
-		}*/
 		
-
-	}
-	
 	private void doWait () {
 		if (wait != null)
 			wait.dispose();
@@ -148,7 +134,7 @@ public class Client {
 			pulse = new Socket(url, Ports.PULSE_PORT);
 			pg = new PulseGenerator();
 			(new Thread(pg)).start();
-			//(new ObjectOutputStream(socket.getOutputStream())).writeObject(username);
+			(new ObjectOutputStream(socket.getOutputStream())).writeObject(username);
 			(new Thread(new NetworkMonitor(socket, listener))).start();
 			System.out.println("Client: Connected.");
 		} catch (UnknownHostException e) {
@@ -211,9 +197,10 @@ public class Client {
 					ConnectWindow cp = (ConnectWindow)window; 
 					connect(cp.getHostname(), cp.getUsername());
 					switchWindow(new DeployWindow());
+					doWait();
 				} else if ("dispose".equals(arg)) {
 					System.out.println("disposing");
-					System.exit(0);
+					//System.exit(0);
 				}
 			} else if (window instanceof DeployWindow) {
 				if (arg instanceof GameBoard)
@@ -257,7 +244,7 @@ public class Client {
 					//socket.getOutputStream().close();
 					socket.close();
 					pg.stop();
-					System.exit(0);
+					//System.exit(0);
 				}
 			} catch (IOException e1) {
 				e1.printStackTrace();

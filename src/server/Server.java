@@ -1,17 +1,12 @@
 package server;
 
 import java.awt.Dimension;
-import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Vector;
 
 import javax.swing.JFrame;
 
-import server.ClientStruct.ClientStatus;
-import server.game.PulseMonitor;
 import server.ui.ServerPanel;
-
 
 public class Server extends JFrame {
 	

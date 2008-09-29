@@ -10,6 +10,7 @@ import game.layout.GameBoard;
 import game.net.action.FiredShot;
 import game.net.outcome.Outcome;
 import server.ClientStruct;
+import server.ClientStruct.ClientStatus;
 
 public class Game implements Runnable, Observer {
 	
@@ -49,6 +50,9 @@ public class Game implements Runnable, Observer {
 		players = new  ClientStruct[2];
 		players[0] = player1;
 		players[1] = player2;
+		players[0].setCurrentGame(this);
+		players[1].setCurrentGame(this);
+		(new Thread(new GameStartMonitor(this))).start();
 	}
 	
 	/* END Constructors */
@@ -121,15 +125,12 @@ public class Game implements Runnable, Observer {
 		
 	}
 	
-	/* Runnable Methods */
-	
+	/* END Runnable Methods */
 	
 	public void stopGame (String reason) {
 		System.out.println("Server: Game stopped: \"" + reason + "\"");
-		if (players[0].isConnected())
-			players[0].sendGameStop(reason);
-		if (players[1].isConnected())
-			players[1].sendGameStop(reason);
+		players[0].sendGameStop(reason);
+		players[1].sendGameStop(reason);
 		status = GameStatus.ENDED;
 	}
 	
